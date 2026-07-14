@@ -52,15 +52,9 @@ builder.Services.AddControllers()
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 /*
-builder.Services.AddScoped<ITimeEntryRepository, TimeEntryRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IProjectRepository, ProjectService>();
-
-builder.Services.AddValidatorsFromAssemblyContaining<CreateTimeEntryValidator>();
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 */
