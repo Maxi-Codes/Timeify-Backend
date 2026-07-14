@@ -5,9 +5,11 @@ namespace timeify_rest.Interfaces;
 
 public interface IProjectRepository
 {
-    Task<List<Project>> GetProjects();
-    Task<Project> GetProject(Guid id);
+    Task<List<Project>> GetProjectsAsync(Guid? companyId = null, bool? isActive = null);
+    Task<Project?> GetProjectAsync(Guid id);
     Task<Project> CreateProjectAsync(CreateProjectDto dto);
-    Task<List<Project>> GetActiveProjects();
-    Task<int> GetActiveProjectsCount();
+    Task<Project?> UpdateProjectAsync(Guid id, UpdateProjectDto dto);
+    Task<Project?> UpdateProjectStatusAsync(Guid id, bool isActive);
+    Task<bool> DeleteProjectAsync(Guid id);
+    Task<int> GetActiveProjectsCountAsync(Guid? companyId = null);
 }

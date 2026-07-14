@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace timeify_rest.DTOs;
 
-public class CreateProjectDto
+public class UpdateProjectDto
 {
-    public Guid CompanyId { get; set; }
-
     [Required]
     public string Name { get; set; } = string.Empty;
 

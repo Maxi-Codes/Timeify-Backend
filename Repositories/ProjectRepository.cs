@@ -6,18 +6,30 @@ using timeify_rest.Interfaces;
 
 namespace timeify_rest.Repositories;
 
-public class ProjectRepository (AppDbContext appDbContext) : IProjectRepository
+public class ProjectRepository(AppDbContext appDbContext) : IProjectRepository
 {
-    public async Task<List<Project>> GetProjects()
+    public async Task<List<Project>> GetProjectsAsync(Guid? companyId = null, bool? isActive = null)
     {
-        var projects = await appDbContext.Projects.ToListAsync();
-        return projects;
+        var query = appDbContext.Projects
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (companyId.HasValue)
+            query = query.Where(p => p.CompanyId == companyId.Value);
+
+        if (isActive.HasValue)
+            query = query.Where(p => p.IsActive == isActive.Value);
+
+        return await query
+            .OrderBy(p => p.Name)
+            .ToListAsync();
     }
 
-    public async Task<Project> GetProject(Guid id)
+    public async Task<Project?> GetProjectAsync(Guid id)
     {
-        var project = await appDbContext.Projects.FindAsync(id);
-        return project;
+        return await appDbContext.Projects
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Project> CreateProjectAsync(CreateProjectDto dto)
@@ -41,18 +53,9 @@ public class ProjectRepository (AppDbContext appDbContext) : IProjectRepository
         {
             Id = Guid.NewGuid(),
             CompanyId = dto.CompanyId,
-            Name = dto.Name,
-            Description = dto.Description,
-            Address = new ProjectAddress
-            {
-                Street = dto.Address.Street,
-                HouseNumber = dto.Address.HouseNumber,
-                PostalCode = dto.Address.PostalCode,
-                City = dto.Address.City,
-                Country = dto.Address.Country,
-                Latitude = dto.Address.Latitude,
-                Longitude = dto.Address.Longitude
-            },
+            Name = dto.Name.Trim(),
+            Description = dto.Description?.Trim(),
+            Address = CreateAddress(dto.Address),
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -64,15 +67,77 @@ public class ProjectRepository (AppDbContext appDbContext) : IProjectRepository
         return project;
     }
 
-    public async Task<List<Project>> GetActiveProjects()
+    public async Task<Project?> UpdateProjectAsync(Guid id, UpdateProjectDto dto)
     {
-        var projects = appDbContext.Projects.Where(p => p.IsActive).ToListAsync();
-        return await projects;
+        var project = await appDbContext.Projects.FindAsync(id);
+
+        if (project is null)
+            return null;
+
+        project.Name = dto.Name.Trim();
+        project.Description = dto.Description?.Trim();
+        project.Address = CreateAddress(dto.Address);
+        project.UpdatedAt = DateTime.UtcNow;
+
+        await appDbContext.SaveChangesAsync();
+        return project;
     }
 
-    public async Task<int> GetActiveProjectsCount()
+    public async Task<Project?> UpdateProjectStatusAsync(Guid id, bool isActive)
     {
-        var projectCount = appDbContext.Projects.CountAsync(p => p.IsActive);
-        return await projectCount;
+        var project = await appDbContext.Projects.FindAsync(id);
+
+        if (project is null)
+            return null;
+
+        project.IsActive = isActive;
+        project.UpdatedAt = DateTime.UtcNow;
+
+        await appDbContext.SaveChangesAsync();
+        return project;
+    }
+
+    public async Task<bool> DeleteProjectAsync(Guid id)
+    {
+        var project = await appDbContext.Projects.FindAsync(id);
+
+        if (project is null)
+            return false;
+
+        var hasTimeEntries = await appDbContext.TimeEntries.AnyAsync(t => t.ProjectId == id);
+
+        if (hasTimeEntries)
+        {
+            throw new InvalidOperationException(
+                "The project cannot be deleted because time entries reference it. Deactivate it instead.");
+        }
+
+        appDbContext.Projects.Remove(project);
+        await appDbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<int> GetActiveProjectsCountAsync(Guid? companyId = null)
+    {
+        var query = appDbContext.Projects.Where(p => p.IsActive);
+
+        if (companyId.HasValue)
+            query = query.Where(p => p.CompanyId == companyId.Value);
+
+        return await query.CountAsync();
+    }
+
+    private static ProjectAddress CreateAddress(ProjectAddressDto dto)
+    {
+        return new ProjectAddress
+        {
+            Street = dto.Street.Trim(),
+            HouseNumber = dto.HouseNumber?.Trim(),
+            PostalCode = dto.PostalCode.Trim(),
+            City = dto.City.Trim(),
+            Country = dto.Country.Trim(),
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude
+        };
     }
 }
