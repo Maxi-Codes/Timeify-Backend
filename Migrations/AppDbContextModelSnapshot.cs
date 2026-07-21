@@ -120,6 +120,34 @@ namespace timeify_rest.Migrations
                     b.ToTable("EmploymentContracts");
                 });
 
+            modelBuilder.Entity("timeify_rest.Entities.NewsletterSubscriber", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("SubscribedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UnsubscribedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("NewsletterSubscribers");
+                });
+
             modelBuilder.Entity("timeify_rest.Entities.Project", b =>
                 {
                     b.Property<Guid>("Id")

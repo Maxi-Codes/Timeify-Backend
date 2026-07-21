@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
     public DbSet<Absence> Absences => Set<Absence>();
+    public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,6 +83,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // ================= ABSENCE =================
         modelBuilder.Entity<Absence>()
             .HasIndex(a => new { a.UserId, a.StartDate, a.EndDate });
+
+        // ================= NEWSLETTER =================
+        modelBuilder.Entity<NewsletterSubscriber>()
+            .HasIndex(s => s.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<NewsletterSubscriber>()
+            .Property(s => s.Email)
+            .HasMaxLength(320)
+            .IsRequired();
 
         // ================= ENUM CONVERSIONS =================
         modelBuilder.Entity<Absence>()

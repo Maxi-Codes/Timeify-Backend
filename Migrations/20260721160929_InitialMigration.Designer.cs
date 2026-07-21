@@ -12,7 +12,7 @@ using timeify_rest.Infrastructure.Data;
 namespace timeify_rest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260720171526_InitialMigration")]
+    [Migration("20260721160929_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -121,6 +121,34 @@ namespace timeify_rest.Migrations
                         .IsUnique();
 
                     b.ToTable("EmploymentContracts");
+                });
+
+            modelBuilder.Entity("timeify_rest.Entities.NewsletterSubscriber", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("SubscribedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UnsubscribedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("NewsletterSubscribers");
                 });
 
             modelBuilder.Entity("timeify_rest.Entities.Project", b =>

@@ -31,6 +31,21 @@ namespace timeify_rest.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NewsletterSubscribers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
+                    SubscribedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    UnsubscribedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NewsletterSubscribers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -207,6 +222,12 @@ namespace timeify_rest.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_NewsletterSubscribers_Email",
+                table: "NewsletterSubscribers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_CompanyId",
                 table: "Projects",
                 column: "CompanyId");
@@ -246,6 +267,9 @@ namespace timeify_rest.Migrations
 
             migrationBuilder.DropTable(
                 name: "EmploymentContracts");
+
+            migrationBuilder.DropTable(
+                name: "NewsletterSubscribers");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");
