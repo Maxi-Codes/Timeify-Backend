@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 var connectionString =
-    builder.Configuration.GetConnectionString("default")
+    builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "ConnectionStrings:DefaultConnection fehlt.");
 
